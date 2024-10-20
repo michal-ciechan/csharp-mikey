@@ -1,0 +1,6 @@
+@DependencyInjectionGoneWrong_HostAddress = http://localhost:5049
+
+GET {{DependencyInjectionGoneWrong_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
