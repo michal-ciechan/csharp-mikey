@@ -11,7 +11,6 @@ public class WeatherForecastService
 {
     private readonly ILogger<WeatherForecastService> _logger;
     private readonly OpenTelemetryTracer _tracer;
-    private readonly TimeProvider _timeProvider;
     private readonly IStopwatchGenerator _stopwatchGenerator;
     private readonly TaskFactory _taskFactory;
     private readonly ICultureInfoProvider _cultureInfoProvider;
@@ -25,7 +24,6 @@ public class WeatherForecastService
     public WeatherForecastService(
         ILogger<WeatherForecastService> logger,
         OpenTelemetryTracer tracer,
-        TimeProvider timeProvider,
         IStopwatchGenerator stopwatchGenerator,
         TaskFactory taskFactory,
         ICultureInfoProvider cultureInfoProvider,
@@ -39,7 +37,6 @@ public class WeatherForecastService
     {
         _logger = logger;
         _tracer = tracer;
-        _timeProvider = timeProvider;
         _stopwatchGenerator = stopwatchGenerator;
         _taskFactory = taskFactory;
         _cultureInfoProvider = cultureInfoProvider;
@@ -82,7 +79,7 @@ public class WeatherForecastService
             cityName,
             cityId,
             stopwatch.ElapsedMilliseconds.ToString(cultureInfo),
-            _timeProvider.GetUtcNow().ToString(cultureInfo)
+            AppServices.TimeProvider.GetUtcNow().ToString(cultureInfo)
         );
         
         return result;
