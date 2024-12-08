@@ -9,79 +9,47 @@
 /// </summary>
 public class WeatherForecastService
 {
-    private readonly ILogger<WeatherForecastService> _logger;
-    private readonly OpenTelemetryTracer _tracer;
-    private readonly IStopwatchGenerator _stopwatchGenerator;
-    private readonly TaskFactory _taskFactory;
-    private readonly ICultureInfoProvider _cultureInfoProvider;
-    private readonly IFileSystem _fileSystem;
-    private readonly WeatherJsonSerializer _jsonSerializer;
-    private readonly ConfigOptions _config;
-    private readonly HttpClient _httpClient;
-    private readonly ICityNameProvider _cityNameProvider;
+    private static readonly Log Logger = LogManager.GetLogger<WeatherForecastService>();
+    
     private readonly IWeatherForecastCalculator _weatherForecastCalculator;
 
     public WeatherForecastService(
-        ILogger<WeatherForecastService> logger,
-        OpenTelemetryTracer tracer,
-        IStopwatchGenerator stopwatchGenerator,
-        TaskFactory taskFactory,
-        ICultureInfoProvider cultureInfoProvider,
-        IFileSystem fileSystem,
-        WeatherJsonSerializer jsonSerializer,
-        IOptions<ConfigOptions> configOptions,
-        HttpClient httpClient,
-        ICityNameProvider cityNameProvider,
         IWeatherForecastCalculator weatherForecastCalculator
     )
     {
-        _logger = logger;
-        _tracer = tracer;
-        _stopwatchGenerator = stopwatchGenerator;
-        _taskFactory = taskFactory;
-        _cultureInfoProvider = cultureInfoProvider;
-        _fileSystem = fileSystem;
-        _jsonSerializer = jsonSerializer;
-        _config = configOptions.Value;
-        _httpClient = httpClient;
-        _cityNameProvider = cityNameProvider;
         _weatherForecastCalculator = weatherForecastCalculator;
     }
     
     public async Task<WeatherForecast[]> GenerateWeatherForecast(int cityId)
     {
-        _tracer.StartActivity("GenerateWeatherForecast");
-        
-        _logger.LogInformation("Generating weather forecast");
-        
-        var stopwatch = _stopwatchGenerator.StartNew();
-        var cityName = _cityNameProvider.GetCityName(cityId);
-        var cultureInfo = _cultureInfoProvider.GetCultureInfo();
-
-        // Fetch Calculated and Remote Weather Forecasts
-        var calculatedForecasts = await _taskFactory.StartNew(
-            () => _weatherForecastCalculator.GetWeather(cityId)
-        );
-        
-        var remoteForecasts = await _httpClient.GetFromJsonAsync<WeatherForecast[]>(
-            $"{_config.RemoteServiceUrl}/weather?cityId={cityId}"
-        );
-        
-        // Combine
-        var result = calculatedForecasts.UnionBy(remoteForecasts!, x => x.Date).ToArray();
-        
-        // Save
-        var filePath = _fileSystem.Path.Combine(_config.OutputPath, $"{cityId}.json");
-        await _fileSystem.File.WriteAllTextAsync(filePath, _jsonSerializer.Serialize(result));
-
-        _logger.LogInformation(
-            "Weather forecast for {City}[{CityId}] generated in {ElapsedMilliseconds}ms at {Time}",
-            cityName,
-            cityId,
-            stopwatch.ElapsedMilliseconds.ToString(cultureInfo),
-            AppServices.TimeProvider.GetUtcNow().ToString(cultureInfo)
-        );
-        
-        return result;
+        throw new NotImplementedException();
+        // AppServices.Tracing.StartActivity("GenerateWeatherForecast");
+        //
+        // Logger.Info("Generating weather forecast");
+        //
+        // var stopwatch = Stopwatch.StartNew();
+        // var cityName = AppServices.CityNameProvider.GetCityName(cityId);
+        //
+        // // Fetch Calculated and Remote Weather Forecasts
+        // var calculatedForecasts = await Task.Run(
+        //     () => _weatherForecastCalculator.GetWeather(cityId)
+        // );
+        //
+        // var remoteForecasts = await AppServices.HttpClient.GetFromJsonAsync<WeatherForecast[]>(
+        //     $"{AppServices.Config.RemoteServiceUrl}/weather?cityId={cityId}"
+        // );
+        //
+        // // Combine
+        // var result = calculatedForecasts.UnionBy(remoteForecasts!, x => x.Date).ToArray();
+        //
+        // // Save
+        // var filePath = Path.Combine(AppServices.Config.OutputPath, $"{cityId}.json");
+        // await File.WriteAllTextAsync(filePath, JsonSerializer.Serialize(result));
+        //
+        // Logger.Info(
+        //     $"Weather forecast for {cityName}[{cityId}] generated in {stopwatch.ElapsedMilliseconds}ms at {AppServices.TimeProvider.GetUtcNow()}"
+        // );
+        //
+        // return result;
     }
 }
